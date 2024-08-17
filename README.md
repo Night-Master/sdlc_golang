@@ -1,10 +1,9 @@
-## 使用样例
-![image](https://github.com/Night-Master/sdlc/blob/main/data/use1.png)
-![image](https://github.com/Night-Master/sdlc/blob/main/data/use2.png)
-
 ## 项目简介
 
 sdlc 是一个基于 Go 语言构建的安全漏洞示范平台，旨在促进 DevSecOps 和安全开发生命周期 (SDLC) 实践。它通过模拟常见漏洞来增强开发人员的安全意识，除了可以用于devsecops以外，还可以用于安全行业从事者学习漏洞知识或者渗透知识，代码审计，提供了一个实践和学习的环境。本项目采用了前后端分离的设计模式，其中后端利用了轻量级框架 Gin，而前端则使用了 Vue 3。
+
+## 使用样例
+![image](https://github.com/Night-Master/sdlc/blob/main/data/use2.png)
 
 ## 主要特性
 
