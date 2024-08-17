@@ -1,0 +1,351 @@
+组件1引用了组件2，组件2是个评论区，组件1上有个run按钮，目前是按下去就会加载组件2，但是希望在组件2加载出来同时自动填充123，并且确保样式不变！！
+组件1：
+<template>
+  <div class="homeBox"> 
+    <div class="_title_t">{{ title }}</div>
+    <div class="tips" v-if="currentRoute.meta.desc">
+      {{ currentRoute.meta.desc }}
+    </div>
+    <div class="list">
+      <div class="item">
+        <div class="_top">
+          <ElSelect v-model="value" placeholder="" style="width: 140px">
+            <ElOption
+              v-for="item in options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </ElSelect>
+          <ElButton type="primary" style="float: right" @click="run1()"> Run </ElButton>
+          <ElButton type="danger" style="float: right; margin-right: 10px" @click="clearComments()"> Clear Comments </ElButton>
+        </div>
+        <div class="edit-container h-60vh" v-if="value === 0">
+          <pre><code >{{ content }} </code></pre>
+        </div>
+        <div class="view-container h-60vh" v-else>
+          <PreviewComponent :initialUsername="username" :initialPassword="password" />
+        </div>
+      </div>
+      <div class="item">
+        <div class="_top">
+          <ElSelect v-model="value2" placeholder="" style="width: 140px">
+            <ElOption
+              v-for="item in options2"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </ElSelect>
+          <ElButton type="primary" style="float: right" @click="run2()"> Run </ElButton>
+        </div>
+        <div class="edit-container h-60vh" v-if="value2 === 0">
+          <pre><code >{{ content2 }} </code></pre>
+        </div>
+        <div class="view-container h-60vh" v-else>
+          <PreviewComponentII :initialUsername="username2" :initialPassword="password2"/>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted, watch } from 'vue';
+import { ElSelect, ElOption, ElButton } from 'element-plus';
+import PreviewComponent from './components/PreviewComponent/index.vue';
+import PreviewComponentII from './components/PreviewComponent2/index.vue';
+import { useRouter } from 'vue-router'
+import request from '@/utils/request';
+
+const { currentRoute } = useRouter()
+const title = ref(currentRoute.value.meta.title)
+watch(
+  () => currentRoute.value.meta.title,
+  (newVal, oldVal) => {
+    title.value = newVal
+  }
+)
+const value = ref(0);
+const options = ref([
+  { value: 0, label: '漏洞代码' },
+  { value: 1, label: '应用界面' }
+]);
+const value2 = ref(0);
+const options2 = ref([
+  { value: 0, label: '安全代码' },
+  { value: 1, label: '应用界面' }
+]);
+const content = ref(``);
+const content2 = ref(``);
+let username = ref('admin');
+let password = ref('');
+let username2 = ref('admin');
+let password2 = ref('');
+
+const run1 = () => {
+   username.value = `admin' and '1'='1' --`;
+   password.value = '12';
+   value.value = 1;
+};
+
+const run2 = () => {
+  username2.value = `admin' and '1'='1' --`;
+  password2.value = '12';
+  value2.value = 1;
+};
+
+const clearComments = async () => {
+  try {
+    const response = await request({
+      url: '/clear_comments',
+      method: 'post'
+    });
+    if (response.status === 1) {
+      alert(response.message);
+    } else {
+      alert(response.message);
+    }
+  } catch (error) {
+    alert('An error occurred');
+  }
+};
+
+onMounted(() => {
+  console.log('mounted');
+});
+</script>
+
+<style scoped lang="less">
+.homeBox {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
+}
+.list {
+  display: flex;
+  flex: 1;
+  .item {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    .edit-container, .view-container {
+      flex: 1;
+      margin: 10px;
+    }
+  }
+}
+._top {
+  margin: 20px;
+}
+.tips {
+  margin: 20px 10px;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  line-height: 1.6;
+  color: #555;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+.tips:hover {
+  background-color: #e9ecef;
+}
+pre {
+  background-color: #fff;
+  color: #333;
+  padding: 20px;
+  border-radius: 10px;
+  overflow: auto;
+  flex: 1;
+  height: 100%;
+  width: 100%;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+</style>
+组件2：
+<template>
+  <div class="pageView">
+    <div class="comments-container">
+      <h1>Comments</h1>
+      <form @submit.prevent="handleSubmit">
+        <div class="input-group">
+          <label for="content">Comment</label>
+          <textarea
+            id="content"
+            v-model="newComment.content"
+            placeholder="Enter your comment"
+            required
+          ></textarea>
+        </div>
+        <button type="submit" class="btn-submit">Submit</button>
+      </form>
+      <div v-if="message" :class="['message', messageType]">{{ message }}</div>
+      <div v-if="comments.length" class="comment-list">
+        <div v-for="comment in comments" :key="comment.id" class="comment">
+          <p><strong>{{ comment.username }}</strong> 留言:</p>
+          <div v-html="comment.content"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted } from 'vue';
+import request from '@/utils/request';
+
+const comments = ref([]);
+const newComment = ref({ username: 'anonymous', content: '' });
+const message = ref('');
+const messageType = ref('');
+
+const fetchComments = async () => {
+  try {
+    const response = await request({
+      url: '/get_comments',
+      method: 'post'
+    });
+    if (response.status === 1) {
+      comments.value = response.data;
+    } else {
+      message.value = response.message;
+      messageType.value = 'error';
+    }
+  } catch (error) {
+    message.value = 'An error occurred';
+    messageType.value = 'error';
+  }
+};
+
+const handleSubmit = async () => {
+  try {
+    const response = await request({
+      url: '/create_comments',
+      method: 'post',
+      data: newComment.value
+    });
+    if (response.status === 1) {
+      message.value = response.message;
+      messageType.value = 'success';
+      newComment.value = { username: 'anonymous', content: '' };
+      fetchComments();
+    } else {
+      message.value = response.message;
+      messageType.value = 'error';
+    }
+  } catch (error) {
+    message.value = 'An error occurred';
+    messageType.value = 'error';
+  }
+};
+
+onMounted(() => {
+  fetchComments();
+});
+</script>
+
+<style scoped lang="less">
+.pageView {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  font-family: 'Arial', sans-serif;
+  background-color: #f4f4f4;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 1000px;
+  margin: 0;
+
+}
+.comments-container {
+  background-color: #fff;
+  padding: 40px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  width: 400px;
+  text-align: center;
+}
+.comments-container h1 {
+  margin-bottom: 20px;
+  color: #333;
+}
+.input-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+.input-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: #555;
+}
+.input-group textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+.input-group textarea:focus {
+  border-color: #007bff;
+  outline: none;
+}
+.btn-submit {
+  background-color: #007bff;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
+  font-size: 16px;
+}
+.btn-submit:hover {
+  background-color: #0056b3;
+}
+.message {
+  margin-top: 20px;
+  padding: 10px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+.success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+.comment-list {
+  margin-top: 20px;
+  text-align: left;
+}
+.comment {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+.comment p {
+  margin: 0;
+  color: #555;
+  font-size: 16px;
+}
+.comment p:first-child {
+  margin-bottom: 10px;
+  color: #333;
+  font-size: 18px;
+}
+.comment p:first-child strong {
+  color: #007bff;
+}
+</style>
