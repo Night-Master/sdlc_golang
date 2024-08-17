@@ -1,6 +1,6 @@
 ## 使用样例
-![image text][[https://github.com/Night-Master/sdlc/blob/main/data/use1.png]
-![image text][[https://github.com/Night-Master/sdlc/blob/main/data/use2.png]
+![image](https://github.com/Night-Master/sdlc/blob/main/data/use1.png)
+![image](https://github.com/Night-Master/sdlc/blob/main/data/use2.png)
 
 ## 项目简介
 
