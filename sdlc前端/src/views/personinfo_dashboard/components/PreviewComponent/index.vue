@@ -3,10 +3,8 @@
     <div class="header">
       <input v-model="inputUsername" placeholder="输入用户名" @keyup.enter="fetchUserProfile" class="input-field" />
       <button @click="fetchUserProfile" class="button">查看用户</button>
-      
     </div>
     <div class="content">
-      
       <div class="profile">
         <h1>你当前登录的账号是 {{ currentUsername }}，你查看的是 {{ user.username }} 的用户界面</h1>
         <div class="avatar-container">
@@ -27,6 +25,7 @@
               <th>Order ID</th>
               <th>Product Name</th>
               <th>Amount</th>
+              <th>Quantity</th>
             </tr>
           </thead>
           <tbody>
@@ -34,6 +33,7 @@
               <td>{{ order.order_id }}</td>
               <td>{{ order.name }}</td>
               <td>{{ order.amount }}</td>
+              <td>{{ order.quantity }}</td>
             </tr>
           </tbody>
         </table>
@@ -65,11 +65,6 @@ const avatarSrc = computed(() => {
 });
 
 const fetchUserProfile = async () => {
-  // if (!currentUsername.value) {
-  //   alert('Username not found in localStorage');
-  //   return;
-  // }
-
   try {
     const response = await request({
       url: '/get_profile',

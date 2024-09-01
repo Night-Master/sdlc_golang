@@ -3,13 +3,13 @@ package vulnerabilities
 import (
 	"database/sql"
 	"html"
-	"html/template"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/mattn/go-sqlite3"
 )
 
+// 未对接受的参数进行处理
 func ReflectXss(c *gin.Context) {
 	type XssRequest struct {
 		Input string `json:"input" binding:"required"`
@@ -25,6 +25,7 @@ func ReflectXss(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": 1, "message": input})
 }
 
+// 对接受的参数使用 html.EscapeString转义
 func ReflectXssSafe(c *gin.Context) {
 	type XssRequest struct {
 		Input string `json:"input" binding:"required"`
@@ -70,6 +71,7 @@ func Get_comments(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": 1, "message": "Comments fetched successfully", "data": comments})
 }
 
+// 未对接收上来的Content字段进行转义处理
 func Create_comments(c *gin.Context) {
 	db, err := sql.Open("sqlite3", "./test.db")
 	if err != nil {
@@ -111,6 +113,7 @@ func Create_comments(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": 1, "message": "Comment added successfully"})
 }
 
+// 对接收上来的Content字段进行HTMLEscapeString转义处理
 func Create_comments_safe(c *gin.Context) {
 	db, err := sql.Open("sqlite3", "./test.db")
 	if err != nil {
@@ -144,7 +147,7 @@ func Create_comments_safe(c *gin.Context) {
 	}
 
 	// 转义用户输入的内容以防止XSS攻击
-	escapedContent := template.HTMLEscapeString(commentReq.Content)
+	escapedContent := html.EscapeString(commentReq.Content)
 
 	_, err = db.Exec("INSERT INTO comments (username, content) VALUES (?, ?)", usernameStr, escapedContent)
 	if err != nil {

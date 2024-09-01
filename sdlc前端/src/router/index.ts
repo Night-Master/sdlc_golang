@@ -171,6 +171,27 @@ export const asyncRouterMap: AppRouteRecordRaw[] = [
     ]
   },
   {
+    path: '/xxe_dashboard',
+    component: Layout,
+    name: 'xxe_dashboard',
+    redirect: '/xxe_dashboard/index',
+    meta: {
+      projectType:'golang',
+    },
+    children: [
+      {
+        path: 'XXE',
+        component: () => import('@/views/xxe_dashboard/index.vue'),
+        name: 'XXE',
+        meta: {
+          title: 'XXE',
+          desc: "XXE（Unauthorized Access to API）是一种常见的安全漏洞，攻击者可以利用此漏洞访问或操作未经授权的API接口，从而获取敏感信息或执行恶意操作。这种漏洞通常发生在Web应用程序中，当API接口没有正确实施访问控制时，攻击者可以通过直接调用API接口来绕过前端的验证和授权机制。"
+          // icon: 'clarity:document-solid'
+        }
+      }
+    ]
+  },
+  {
     path: '/personinfo_dashboard',
     component: Layout,
     name: 'personinfo_dashboard',
@@ -207,6 +228,27 @@ export const asyncRouterMap: AppRouteRecordRaw[] = [
         meta: {
           title: '接口未授权访问',
           desc: "接口未授权访问（Unauthorized Access to API）是一种常见的安全漏洞，攻击者可以利用此漏洞访问或操作未经授权的API接口，从而获取敏感信息或执行恶意操作。这种漏洞通常发生在Web应用程序中，当API接口没有正确实施访问控制时，攻击者可以通过直接调用API接口来绕过前端的验证和授权机制。"
+          // icon: 'clarity:document-solid'
+        }
+      }
+    ]
+  },
+  {
+    path: '/buy_dashboard',
+    component: Layout,
+    name: 'buy_dashboard',
+    redirect: '/buy_dashboard/index',
+    meta: {
+      projectType:'golang',
+    },
+    children: [
+      {
+        path: '负值反冲',
+        component: () => import('@/views/buy_dashboard/index.vue'),
+        name: '负值反冲',
+        meta: {
+          title: '负值反冲',
+          desc: "负值反冲漏洞（Negative Rebound Vulnerability）是一个在某些计算机系统或网络协议中可能出现的安全漏洞。这个漏洞的原理通常涉及到在处理特定类型的数据或执行某些操作时，系统未能正确处理负值或异常值，导致系统状态出现意外的反冲或回弹。具体来说，当系统接收到一个负值输入时，它可能会错误地处理这个值，导致系统状态或资源分配出现负值，进而引发一系列不正常的操作或状态变化。这种不正常的操作可能会被恶意用户利用，通过发送特定的负值数据包来触发系统的异常行为，从而实施攻击，比如电商系统购买负数商品使账户余额不减反增。为了防止这种漏洞，系统开发者需要确保在设计和实现系统时，对所有可能的输入值进行严格的验证和处理，特别是对于负值和异常值的处理要格外小心，确保系统在任何情况下都能保持稳定和安全。"
           // icon: 'clarity:document-solid'
         }
       }

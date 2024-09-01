@@ -49,6 +49,8 @@ func Sql_injection_sqlite3(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": 0, "message": "Login failed!"})
 	}
 }
+
+// 参数化查询，它通过将用户输入的数据作为参数传递给查询，而不是直接将用户输入嵌入到查询字符串中，从而有效地防止SQL注入攻击
 func Sql_injection_sqlite3_safe(c *gin.Context) {
 	type LoginRequest struct {
 		Username string `json:"username" binding:"required"`

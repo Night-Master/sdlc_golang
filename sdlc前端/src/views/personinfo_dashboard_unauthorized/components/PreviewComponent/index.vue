@@ -25,6 +25,7 @@
               <th>Order ID</th>
               <th>Product Name</th>
               <th>Amount</th>
+              <th>Quantity</th>
             </tr>
           </thead>
           <tbody>
@@ -32,6 +33,7 @@
               <td>{{ order.order_id }}</td>
               <td>{{ order.name }}</td>
               <td>{{ order.amount }}</td>
+              <td>{{ order.quantity }}</td>
             </tr>
           </tbody>
         </table>
@@ -63,11 +65,6 @@ const avatarSrc = computed(() => {
 });
 
 const fetchUserProfile = async () => {
-  // if (!currentUsername.value) {
-  //   alert('Username not found in localStorage');
-  //   return;
-  // }
-
   try {
     const response = await request({
       url: '/get_profile_unauthorized',
