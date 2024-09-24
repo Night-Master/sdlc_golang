@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vulnerability Scanner</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f7f9fc;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 32px;
+            color: #2a3f54;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            width: 0;
+            height: 100%;
+            background-color: #28a745;
+            transition: width 0.4s ease;
+        }
+
+        .result-table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+
+        .result-table th, .result-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .result-table th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .result-table td {
+            background-color: #f7f9fc;
+        }
+
+        .no-data {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #999;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Vulnerability Scanner</h1>
+    <input type="text" id="scanPath" placeholder="Enter the path to scan" />
+    <button onclick="startScan()">Start Scan</button>
+
+    <!-- Progress Bar -->
+    <div class="progress-bar-container">
+        <div id="progressBar" class="progress-bar"></div>
+    </div>
+
+    <!-- Result Table -->
+    <table id="resultTable" class="result-table">
+        <thead>
+            <tr>
+                <th>File Path</th>
+                <th>Function Name</th>
+                <th>Line</th>
+                <th>Message</th>
+                <th>Severity</th>
+                <th>CWE</th>
+            </tr>
+        </thead>
+        <tbody id="resultBody">
+            <!-- Data will be populated here -->
+        </tbody>
+    </table>
+
+    <!-- No data message -->
+    <p id="noData" class="no-data">No data to display</p>
+</div>
+
+<script>
+    const progressBar = document.getElementById('progressBar');
+    const resultBody = document.getElementById('resultBody');
+    const noData = document.getElementById('noData');
+    const resultTable = document.getElementById('resultTable');
+
+    // Mock function to simulate starting a scan
+    function startScan() {
+        // Get the scan path
+        const scanPath = document.getElementById('scanPath').value;
+        if (!scanPath) {
+            alert('Please enter a path to scan.');
+            return;
+        }
+
+        // Reset progress and results
+        progressBar.style.width = '0%';
+        resultBody.innerHTML = '';
+        noData.style.display = 'block';
+        resultTable.style.display = 'none';
+
+        // Simulate scanning progress
+        let progress = 0;
+        const interval = setInterval(() => {
+            if (progress >= 100) {
+                clearInterval(interval);
+                // Simulate scan results
+                const mockResults = [
+                    {
+                        file_path: "D:\\project\\vulnerabilities\\sql_injection.go",
+                        func_name: "SqlInjectionCheck",
+                        line: 25,
+                        message: "Potential SQL Injection vulnerability detected.",
+                        severity: "High",
+                        cwe: "CWE-89"
+                    },
+                    {
+                        file_path: "D:\\project\\vulnerabilities\\xss_vulnerability.go",
+                        func_name: "XssCheck",
+                        line: 42,
+                        message: "Potential XSS vulnerability detected.",
+                        severity: "Medium",
+                        cwe: "CWE-79"
+                    }
+                ];
+                displayResults(mockResults);
+            } else {
+                progress += 10;
+                progressBar.style.width = progress + '%';
+            }
+        }, 500);
+    }
+
+    // Function to display results in the table
+    function displayResults(results) {
+        resultBody.innerHTML = '';  // Clear any existing rows
+        noData.style.display = results.length === 0 ? 'block' : 'none';
+        resultTable.style.display = results.length === 0 ? 'none' : 'table';
+
+        results.forEach(result => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${result.file_path}</td>
+                <td>${result.func_name}</td>
+                <td>${result.line}</td>
+                <td>${result.message}</td>
+                <td>${result.severity}</td>
+                <td>${result.cwe}</td>
+            `;
+            resultBody.appendChild(row);
+        });
+    }
+</script>
+
+</body>
+</html>
