@@ -8,7 +8,7 @@ sdlc_golang 现在集成了静态应用安全测试 (SAST) 技术，能够对代
 
 ## 使用样例
 sast扫描
-![image](https://github.com/Night-Master/sdlc/blob/main/data/use2.png)
+![image](https://github.com/Night-Master/sdlc/blob/main/data/use3.png)
 漏洞示范
 ![image](https://github.com/Night-Master/sdlc/blob/main/data/use2.png)
 
