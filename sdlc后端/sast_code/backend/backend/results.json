@@ -1,0 +1,68 @@
+{
+	"Golang errors": {
+		"routes": [
+			{
+				"line": 0,
+				"column": 0,
+				"error": "importing dir \"routes\": routes\\golang gin架构.go:1:1: expected 'package', found golang"
+			}
+		]
+	},
+	"Issues": [
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
+			"rule_id": "G204",
+			"details": "Subprocess launched with variable",
+			"file": "D:\\sec_tool\\go_sdlc\\backend\\vulnerabilities\\execute.go",
+			"code": "17: \t// 不安全的代码：直接执行用户提供的命令\n18: \toutput, err := exec.Command(command).CombinedOutput()\n19: \tif err != nil {\n",
+			"line": "18",
+			"column": "17",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "89",
+				"url": "https://cwe.mitre.org/data/definitions/89.html"
+			},
+			"rule_id": "G201",
+			"details": "SQL string formatting",
+			"file": "D:\\sec_tool\\go_sdlc\\backend\\vulnerabilities\\sql_injection.go",
+			"code": "36: \n37: \tquery := fmt.Sprintf(\"SELECT * FROM users WHERE username='%s' AND password='%s'\", username, password)\n38: \tlog.Println(\"query:\", query)\n",
+			"line": "37",
+			"column": "11",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "LOW",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "703",
+				"url": "https://cwe.mitre.org/data/definitions/703.html"
+			},
+			"rule_id": "G104",
+			"details": "Errors unhandled.",
+			"file": "D:\\sec_tool\\go_sdlc\\backend\\main.go",
+			"code": "14: \troutes.SetupRoutes(router)\n15: \trouter.Run(\":2333\")\n16: }\n",
+			"line": "15",
+			"column": "2",
+			"nosec": false,
+			"suppressions": null
+		}
+	],
+	"Stats": {
+		"files": 7,
+		"lines": 491,
+		"nosec": 0,
+		"found": 3
+	},
+	"GosecVersion": "2.20.0"
+}

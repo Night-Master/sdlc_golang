@@ -15,7 +15,7 @@ func XML_parse(c *gin.Context) {
 	}
 
 	if err := c.BindXML(&xmlData); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"status": 0, "message": "Invalid XML input"})
+		c.JSON(http.StatusOK, gin.H{"status": 0, "message": "Invalid XML input"})
 		return
 	}
 

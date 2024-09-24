@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "backend/plugins" // 引入插件
 	"backend/routes"
 
 	"github.com/gin-gonic/gin"

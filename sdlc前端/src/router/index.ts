@@ -254,6 +254,27 @@ export const asyncRouterMap: AppRouteRecordRaw[] = [
       }
     ]
   },
+  {
+    path: '/edit_password_dashboard',
+    component: Layout,
+    name: 'edit_password_dashboard',
+    redirect: '/edit_password_dashboard/index',
+    meta: {
+      projectType:'golang',
+    },
+    children: [
+      {
+        path: '敏感信息明文传输',
+        component: () => import('@/views/edit_password_dashboard/index.vue'),
+        name: '敏感信息明文传输',
+        meta: {
+          title: '敏感信息明文传输',
+          desc: "敏感信息明文传输是指在数据传输过程中，敏感信息（如密码、信用卡号、个人身份信息等）没有经过加密处理，直接以原始的、可读的形式在网络上传输。这种传输方式存在极大的安全风险，因为任何能够截获数据包的攻击者都可以轻易地读取和窃取这些敏感信息。"
+          // icon: 'clarity:document-solid'
+        }
+      }
+    ]
+  },
 
 
 ]
@@ -262,7 +283,7 @@ export const asyncRouterMapSast: AppRouteRecordRaw[] = [
     path: '/scan',
     component: Layout,
     name: 'scan',
-    redirect: '/scan/index',
+    // redirect: '/scan1',
     meta: {
       projectType:'sast',
       title: 'scan',
@@ -271,25 +292,36 @@ export const asyncRouterMapSast: AppRouteRecordRaw[] = [
     },
     children: [
       {
-        path: 'scan1',
-        component: () => import('@/sastscanviews/scan1/index.vue'),
-        name: 'scan1',
+        path: 'createscan',
+        component: () => import('@/sastscanviews/createscan/index.vue'),
+        name: 'createscan',
         meta: {
-          title: '扫码器1',
+          title: '创建扫描任务',
           desc: "扫码器1"
         }
       },
       {
-        path: 'scan2',
-        component: () => import('@/sastscanviews/scan1/index.vue'),
-        name: 'scan2',
+        path: 'takslist',
+        component: () => import('@/sastscanviews/takslist/index.vue'),
+        name: 'takslist',
         meta: {
-          title: '扫码器2',
-          desc: "扫码器2"
+          title: '查看扫描结果',
+          desc: "查看扫描结果"
         }
       },
+      {
+        path: '/result/:taskID',
+        component: () => import('@/sastscanviews/TaskResult/index.vue'),
+        name: 'TaskResult',
+        meta: {
+          title: '任务结果',
+          desc: '查看具体任务的扫描结果',
+          hidden: true // 当设置 true 的时候该路由不会再侧边栏出现
+        },
+      },
     ]
-  },
+  }
+   
 ]
 
 const router = createRouter({

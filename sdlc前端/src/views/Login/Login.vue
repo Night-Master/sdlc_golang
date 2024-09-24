@@ -31,15 +31,17 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import request from '@/utils/request'
 import { useAppStore } from '@/store/modules/app'
 import { useCache } from '@/hooks/web/useCache'
 import { usePermissionStore } from '@/store/modules/permission'
-const { currentRoute, addRoute, push } = useRouter()
 import { useRouter } from 'vue-router'
+import JSEncrypt from 'jsencrypt'
+
 const appStore = useAppStore()
 const permissionStore = usePermissionStore()
+const { currentRoute, addRoute, push } = useRouter()
 const props = defineProps({
   initialUsername: String,
   initialPassword: String
@@ -50,7 +52,71 @@ const password = ref(props.initialPassword || '')
 const message = ref('')
 const messageType = ref('')
 const redirect = ref('')
+const publicKey = ref('')
 const { wsCache } = useCache()
+
+const encrypt = new JSEncrypt()
+
+const fetchPublicKey = async () => {
+  try {
+    const response = await request({
+      url: '/getPublicKey',
+      method: 'get'
+    })
+    publicKey.value = response
+    encrypt.setPublicKey(publicKey.value)
+  } catch (error) {
+    message.value = 'Failed to fetch public key'
+    messageType.value = 'error'
+  }
+}
+
+const handleLogin = async () => {
+  if (!publicKey.value) {
+    message.value = 'Public key not loaded'
+    messageType.value = 'error'
+    return
+  }
+
+  try {
+    const encryptedUsername = encrypt.encrypt(username.value)
+    const encryptedPassword = encrypt.encrypt(password.value)
+
+    const response = await request({
+      url: '/sql_injection_sqlite3_safe',
+      method: 'post',
+      data: {
+        username: encryptedUsername,
+        password: encryptedPassword
+      }
+    })
+
+    if (response.status == 1) {
+      message.value = response.message + "\n当前登录的用户：" + response.username
+      username.value = response.username
+      messageType.value = 'success'
+
+      const res = {
+        password: '',
+        role: 'admin',
+        roleId: '1',
+        username: response.username,
+        permissions: ['*.*.*']
+      }
+
+      wsCache.set(appStore.getUserInfo, res)
+      window.location.href = '/#/sql_dashboard'
+    } else {
+      message.value = response.message
+      messageType.value = 'error'
+    }
+  } catch (error) {
+    console.log(error, 2222)
+    message.value = 'An error occurred'
+    messageType.value = 'error'
+  }
+}
+
 watch(
   () => currentRoute.value,
   (route) => {
@@ -61,44 +127,6 @@ watch(
   }
 )
 
-const handleLogin = async () => {
-  try {
-    const response = await request({
-      url: '/sql_injection_sqlite3_safe',
-      method: 'post',
-      data: {
-        username: username.value,
-        password: password.value
-      }
-    })
-    console.log(response,22222)
-    if (response.status == 1) {
-      message.value = response.message + "\n当前登录的用户："+response.username;
-      username.value = response.username
-      messageType.value = 'success';
-      // window.location.href = '/';
-      const res = {
-        password: '',
-        role: 'admin',
-        roleId: '1',
-        username: response.username,
-        permissions: ['*.*.*']
-      }
-
-      wsCache.set(appStore.getUserInfo, res)
-      // push({ path:'/' })
-      window.location.href = '/#/sql_dashboard'
-    } else {
-      message.value = response.message
-      messageType.value = 'error'
-    }
-  } catch (error) {
-    console.log(error,2222)
-    message.value = 'An error occurred'
-    messageType.value = 'error'
-  }
-}
-
 watch(
   () => [props.initialUsername, props.initialPassword],
   ([newUsername, newPassword]) => {
@@ -106,6 +134,10 @@ watch(
     password.value = newPassword || ''
   }
 )
+
+onMounted(() => {
+  fetchPublicKey()
+})
 </script>
 
 <style scoped lang="less">

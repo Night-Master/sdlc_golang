@@ -21,11 +21,11 @@ const list = ref([
     title: 'golang漏洞平台',
     path:currentProjectHomePage('golang')
   },
-  // {
-  //   project: 'sast',
-  //   title: '代码sast扫描工具',
-  //   path:currentProjectHomePage('sast')
-  // }
+  {
+    project: 'sast',
+    title: '代码sast扫描工具',
+    path:currentProjectHomePage('sast')
+  }
 ])
 const currentIndex = list.value.findIndex(item=>item.project === projectType)
 const current = ref(currentIndex)

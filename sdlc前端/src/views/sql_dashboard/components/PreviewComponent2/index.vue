@@ -31,8 +31,9 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import request from '@/utils/request';
+import JSEncrypt from 'jsencrypt';
 
 const props = defineProps({
   initialUsername: String,
@@ -43,25 +44,49 @@ const username = ref(props.initialUsername || '');
 const password = ref(props.initialPassword || '');
 const message = ref('');
 const messageType = ref('');
+const publicKey = ref('');
+
+const encrypt = new JSEncrypt();
+
+const fetchPublicKey = async () => {
+  try {
+    const response = await request({
+      url: '/getPublicKey',
+      method: 'get'
+    });
+    publicKey.value = response;
+    encrypt.setPublicKey(publicKey.value);
+  } catch (error) {
+    message.value = 'Failed to fetch public key';
+    messageType.value = 'error';
+  }
+};
 
 const handleLogin = async () => {
+  if (!publicKey.value) {
+    message.value = 'Public key not loaded';
+    messageType.value = 'error';
+    return;
+  }
+
   try {
+    const encryptedUsername = encrypt.encrypt(username.value);
+    const encryptedPassword = encrypt.encrypt(password.value);
 
     const response = await request({
       url: '/sql_injection_sqlite3_safe',
       method: 'post',
       data: {
-        username: username.value,
-        password: password.value
+        username: encryptedUsername,
+        password: encryptedPassword
       }
     });
     if (response.status === 1) {
-      message.value = response.message + "\n当前登录的用户："+response.username;
+      message.value = response.message + "\n当前登录的用户：" + response.username;
       username.value = response.username
       messageType.value = 'success';
     } else {
       message.value = response.message;
-
       messageType.value = 'error';
     }
   } catch (error) {
@@ -77,8 +102,11 @@ watch(
     password.value = newPassword || '';
   }
 );
-</script>
 
+onMounted(() => {
+  fetchPublicKey();
+});
+</script>
 
 <style scoped lang="less">
 .pageView {
