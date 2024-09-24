@@ -117,8 +117,8 @@ export function currentProject() {
 export function currentProjectHomePage(type) {
   const project =localStorage.getItem('projectType')  || 'golang';
   let projectHomePage ={
-    golang:'/dashboard/index',
-    sast:'scan/scan1',
+    golang:'/sql_dashboard',
+    sast:'scan/createscan',
   }
   return projectHomePage[type?type:project]
 }

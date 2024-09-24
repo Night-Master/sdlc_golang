@@ -1,29 +1,39 @@
 <template>
   <div class="pageView">
-    <div class="login-container">
-      <h1>不安全的登录</h1>
-      <form @submit.prevent="handleLogin">
+    <div class="change-password-container">
+      <h1>修改密码-明文传输</h1>
+      <form @submit.prevent="handleChangePassword">
         <div class="input-group">
-          <label for="username">Username</label>
-          <input
-            type="text"
-            id="username"
-            v-model="username"
-            placeholder="Enter your username"
-            required
-          />
-        </div>
-        <div class="input-group">
-          <label for="password">Password</label>
+          <label for="currentPassword">当前密码</label>
           <input
             type="password"
-            id="password"
-            v-model="password"
-            placeholder="Enter your password"
+            id="currentPassword"
+            v-model="currentPassword"
+            placeholder="Enter your current password"
             required
           />
         </div>
-        <button type="submit" class="btn-login">Login</button>
+        <div class="input-group">
+          <label for="newPassword">新密码</label>
+          <input
+            type="password"
+            id="newPassword"
+            v-model="newPassword"
+            placeholder="Enter your new password"
+            required
+          />
+        </div>
+        <div class="input-group">
+          <label for="confirmNewPassword">确认新密码</label>
+          <input
+            type="password"
+            id="confirmNewPassword"
+            v-model="confirmNewPassword"
+            placeholder="Confirm your new password"
+            required
+          />
+        </div>
+        <button type="submit" class="btn-change-password">修改密码</button>
       </form>
       <div v-if="message" :class="['message', messageType]">{{ message }}</div>
     </div>
@@ -31,54 +41,49 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
-import request from '@/utils/request';
+import { ref } from 'vue'
+import request from '@/utils/request'
 
-const props = defineProps({
-  initialUsername: String,
-  initialPassword: String
-});
+const currentPassword = ref('')
+const newPassword = ref('')
+const confirmNewPassword = ref('')
+const message = ref('')
+const messageType = ref('')
 
-const username = ref(props.initialUsername || '');
-const password = ref(props.initialPassword || '');
-const message = ref('');
-const messageType = ref('');
+const handleChangePassword = async () => {
+  if (newPassword.value !== confirmNewPassword.value) {
+    message.value = '新密码和确认密码不匹配'
+    messageType.value = 'error'
+    return
+  }
 
-const handleLogin = async () => {
   try {
-
     const response = await request({
-      url: '/sql_injection_sqlite3',
+      url: '/change_password_unsafe',
       method: 'post',
       data: {
-        username: username.value,
-        password: password.value
+        currentPassword: currentPassword.value,
+        newPassword: newPassword.value
       }
-    });
-    if (response.status === 1) {
-      message.value = response.message + "\n当前登录的用户："+response.username;
-      username.value = response.username
-      messageType.value = 'success';
-    } else {
-      message.value = response.message;
+    })
 
-      messageType.value = 'error';
+    if (response.status == 1) {
+      message.value = response.message
+      messageType.value = 'success'
+      currentPassword.value = ''
+      newPassword.value = ''
+      confirmNewPassword.value = ''
+    } else {
+      message.value = response.message
+      messageType.value = 'error'
     }
   } catch (error) {
-    message.value = 'An error occurred';
-    messageType.value = 'error';
+    console.log(error, 2222)
+    message.value = 'An error occurred'
+    messageType.value = 'error'
   }
-};
-
-watch(
-  () => [props.initialUsername, props.initialPassword],
-  ([newUsername, newPassword]) => {
-    username.value = newUsername || '';
-    password.value = newPassword || '';
-  }
-);
+}
 </script>
-
 
 <style scoped lang="less">
 .pageView {
@@ -94,7 +99,7 @@ watch(
   margin: 0;
 }
 
-.login-container {
+.change-password-container {
   background-color: #fff;
   padding: 40px;
   border-radius: 10px;
@@ -104,11 +109,11 @@ watch(
   transition: transform 0.3s ease;
 }
 
-.login-container:hover {
+.change-password-container:hover {
   transform: translateY(-5px);
 }
 
-.login-container h1 {
+.change-password-container h1 {
   margin-bottom: 20px;
   color: #333;
   font-size: 28px;
@@ -144,7 +149,7 @@ watch(
   box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
 }
 
-.btn-login {
+.btn-change-password {
   background-color: #007bff;
   color: #fff;
   padding: 12px 24px;
@@ -157,7 +162,7 @@ watch(
   transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
-.btn-login:hover {
+.btn-change-password:hover {
   background-color: #0056b3;
   transform: translateY(-2px);
 }

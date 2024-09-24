@@ -1,29 +1,39 @@
 <template>
   <div class="pageView">
-    <div class="login-container">
-      <h1>golang 漏洞平台</h1>
-      <form @submit.prevent="handleLogin">
+    <div class="change-password-container">
+      <h1>修改密码-RSA加密传输</h1>
+      <form @submit.prevent="handleChangePassword">
         <div class="input-group">
-          <label for="username">Username</label>
-          <input
-            type="text"
-            id="username"
-            v-model="username"
-            placeholder="Enter your username"
-            required
-          />
-        </div>
-        <div class="input-group">
-          <label for="password">Password</label>
+          <label for="currentPassword">当前密码</label>
           <input
             type="password"
-            id="password"
-            v-model="password"
-            placeholder="Enter your password"
+            id="currentPassword"
+            v-model="currentPassword"
+            placeholder="Enter your current password"
             required
           />
         </div>
-        <button type="submit" class="btn-login">Login</button>
+        <div class="input-group">
+          <label for="newPassword">新密码</label>
+          <input
+            type="password"
+            id="newPassword"
+            v-model="newPassword"
+            placeholder="Enter your new password"
+            required
+          />
+        </div>
+        <div class="input-group">
+          <label for="confirmNewPassword">确认新密码</label>
+          <input
+            type="password"
+            id="confirmNewPassword"
+            v-model="confirmNewPassword"
+            placeholder="Confirm your new password"
+            required
+          />
+        </div>
+        <button type="submit" class="btn-change-password">修改密码</button>
       </form>
       <div v-if="message" :class="['message', messageType]">{{ message }}</div>
     </div>
@@ -31,29 +41,16 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref } from 'vue'
 import request from '@/utils/request'
-import { useAppStore } from '@/store/modules/app'
-import { useCache } from '@/hooks/web/useCache'
-import { usePermissionStore } from '@/store/modules/permission'
-import { useRouter } from 'vue-router'
 import JSEncrypt from 'jsencrypt'
 
-const appStore = useAppStore()
-const permissionStore = usePermissionStore()
-const { currentRoute, addRoute, push } = useRouter()
-const props = defineProps({
-  initialUsername: String,
-  initialPassword: String
-})
-
-const username = ref(props.initialUsername || '')
-const password = ref(props.initialPassword || '')
+const currentPassword = ref('')
+const newPassword = ref('')
+const confirmNewPassword = ref('')
 const message = ref('')
 const messageType = ref('')
-const redirect = ref('')
 const publicKey = ref('')
-const { wsCache } = useCache()
 
 const encrypt = new JSEncrypt()
 
@@ -71,41 +68,38 @@ const fetchPublicKey = async () => {
   }
 }
 
-const handleLogin = async () => {
+const handleChangePassword = async () => {
   if (!publicKey.value) {
     message.value = 'Public key not loaded'
     messageType.value = 'error'
     return
   }
 
+  if (newPassword.value !== confirmNewPassword.value) {
+    message.value = '新密码和确认密码不匹配'
+    messageType.value = 'error'
+    return
+  }
+
   try {
-    const encryptedUsername = encrypt.encrypt(username.value)
-    const encryptedPassword = encrypt.encrypt(password.value)
+    const encryptedCurrentPassword = encrypt.encrypt(currentPassword.value)
+    const encryptedNewPassword = encrypt.encrypt(newPassword.value)
 
     const response = await request({
-      url: '/sql_injection_sqlite3_safe',
+      url: '/change_password_safe',
       method: 'post',
       data: {
-        username: encryptedUsername,
-        password: encryptedPassword
+        currentPassword: encryptedCurrentPassword,
+        newPassword: encryptedNewPassword
       }
     })
 
     if (response.status == 1) {
-      message.value = response.message + "\n当前登录的用户：" + response.username
-      username.value = response.username
+      message.value = response.message
       messageType.value = 'success'
-
-      const res = {
-        password: '',
-        role: 'admin',
-        roleId: '1',
-        username: response.username,
-        permissions: ['*.*.*']
-      }
-
-      wsCache.set(appStore.getUserInfo, res)
-      window.location.href = '/#/sql_dashboard'
+      currentPassword.value = ''
+      newPassword.value = ''
+      confirmNewPassword.value = ''
     } else {
       message.value = response.message
       messageType.value = 'error'
@@ -117,27 +111,7 @@ const handleLogin = async () => {
   }
 }
 
-watch(
-  () => currentRoute.value,
-  (route) => {
-    redirect.value = route?.query?.redirect
-  },
-  {
-    immediate: true
-  }
-)
-
-watch(
-  () => [props.initialUsername, props.initialPassword],
-  ([newUsername, newPassword]) => {
-    username.value = newUsername || ''
-    password.value = newPassword || ''
-  }
-)
-
-onMounted(() => {
-  fetchPublicKey()
-})
+fetchPublicKey()
 </script>
 
 <style scoped lang="less">
@@ -154,7 +128,7 @@ onMounted(() => {
   margin: 0;
 }
 
-.login-container {
+.change-password-container {
   background-color: #fff;
   padding: 40px;
   border-radius: 10px;
@@ -164,11 +138,11 @@ onMounted(() => {
   transition: transform 0.3s ease;
 }
 
-.login-container:hover {
+.change-password-container:hover {
   transform: translateY(-5px);
 }
 
-.login-container h1 {
+.change-password-container h1 {
   margin-bottom: 20px;
   color: #333;
   font-size: 28px;
@@ -204,7 +178,7 @@ onMounted(() => {
   box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
 }
 
-.btn-login {
+.btn-change-password {
   background-color: #007bff;
   color: #fff;
   padding: 12px 24px;
@@ -217,7 +191,7 @@ onMounted(() => {
   transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
-.btn-login:hover {
+.btn-change-password:hover {
   background-color: #0056b3;
   transform: translateY(-2px);
 }
